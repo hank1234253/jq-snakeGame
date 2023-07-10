@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>貪食蛇</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.min.js"
+        integrity="sha512-3dZ9wIrMMij8rOH7X3kLfXAzwtcHpuYpEgQg1OA4QAob1e81H8ntUQmQm3pBudqIoySO5j0tHN4ENzA6+n2r4w=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css"
+        integrity="sha512-t4GWSVZO1eC8BM339Xd7Uphw5s17a86tIZIj8qRxhnKub6WoyhnrxeCIMeAqBPgdZGlCcG2PrZjMc+Wr78+5Xg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"
+        integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        body{
+            background-color: antiquewhite;
+        }
+        table{
+            border: 1px solid black;
+            background-color: skyblue;
+        }
+        td {
+            background-color: skyblue;
+            width: 2vw;
+            height: 2vw;
+        }
+
+        .snake {
+            background-color: pink;
+        }
+
+        .star {
+            background-color: yellow;
+            border-radius: 2vw;
+        }
+        .back {
+            width: 5vw;
+            height: 4vw;
+            border-radius: 3vw;
+            position: fixed;
+            left: 2vw;
+            bottom: 2vw;
+        }
+
+    </style>
+</head>
+
+<body>
+    <button type="button" onclick="location.href='../'" class="btn btn-secondary back">回作品集</button>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col">
+                <table class="mx-auto mt-5">
+                </table>
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col text-center">
+                <div>
+                    <span>時間:</span>
+                    <span id="time">0</span>
+                    <span>秒</span>
+                </div>
+                <div>
+                    <span>分數:</span>
+                    <span id="point">0</span>
+                    <span>分</span>
+                </div>
+                <div class="mt-1">
+                    <button class="btn btn-secondary" id="reset">重新開始</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <script>
+        $(document).ready(function () {
+            let x = 35;//寬
+            let y = 20;//高
+            let posX;
+            let posY;
+            let starX;
+            let starY;
+            let point = 0;
+            let upflag=0;
+            let downflag=0;
+            let leftflag=0;
+            let rightflag=0;
+            let sec;
+            let time=0;
+            let timeout;
+            let timeflag;
+            let beginflag=0;
+            let next;
+            init();
+            begin();
+
+            $(document).keydown(function (e) {
+                switch (e.key) {
+                    case "ArrowUp":
+                    case "w":
+                        start();
+                        if(upflag==0&&downflag!=1){
+                            clearTimeout(timeout);
+                            up();
+                        }
+                        break;
+                    case "ArrowDown":
+                    case "s":
+                        start();
+                        if(downflag==0&&upflag!=1){
+                            clearTimeout(timeout);
+                            down();
+                        }
+                        break;
+                    case "ArrowLeft":
+                    case "a":
+                        start();
+                        if(leftflag==0&&rightflag!=1){
+                            clearTimeout(timeout);
+                            left();
+                        }
+                        break;
+                    case "ArrowRight":
+                    case "d":
+                        start();
+                        if(rightflag==0&&leftflag!=1){
+                            clearTimeout(timeout);
+                            right();
+                        }
+                        break;
+                }
+            });
+
+            $("#reset").click(
+                function(){
+                    begin();
+                }
+            )
+
+
+
+            function start(){
+                if(beginflag==0){
+                    timeflag=setInterval(timer,1000);
+                    next=1;
+                    beginflag=1;
+                }
+            }
+
+            function init() {
+                let tmp = "";
+                for (i = 0; i < x; i++) {
+                    td = "<td></td>";
+                    tmp += td;
+                }
+                let tr = `<tr>${tmp}</tr>`;
+                for (j = 0; j < y; j++) {
+                    $("table").append($(tr));
+                }
+            }
+
+            function begin() {
+                clearInterval(timeflag);
+                clearTimeout(timeout);
+                point=0;
+                next=0;
+                upflag=0;
+                downflag=0;
+                leftflag=0;
+                rightflag=0;
+                beginflag=0;
+                time=0;
+                sec=300;
+                $("#time").text(0);
+                $("#point").text(0);
+                star();
+
+                $("td").attr("data-snake",0);
+                $("td").removeClass("snake");
+                posX = Math.floor(Math.random() * x);
+                posY = Math.floor(Math.random() * y);
+                $("tr").eq(posY).children().eq(posX).attr("data-snake",1);
+                $("tr").eq(posY).children().eq(posX).addClass("snake");
+            }
+            function star() {
+                starX = Math.floor(Math.random() * x);
+                starY = Math.floor(Math.random() * y);
+                $("td").each(function(){{
+                        tmp=$(this).attr("data-snake");
+                        if(tmp>0){
+                            $(this).attr("data-snake",Number(tmp)+1);
+                        }
+                }})
+                check();
+                starShow();
+            }
+
+            function show() {
+                $("tr").eq(posY).children().eq(posX).attr("data-snake",point+2);
+                $("td").each(function () {
+                    let tmp=$(this).attr("data-snake");
+                    $(this).attr("data-snake",tmp-1);
+                    if((tmp-1)>0){
+                        $(this).addClass("snake");
+                    }else{
+                        $(this).removeClass("snake");
+                        $(this).attr("data-snake",0);
+                    }
+                })
+            }
+
+            function starShow() {
+                $("td").removeClass("star");
+                $("tr").eq(starY).children().eq(starX).addClass("star");
+            }
+
+            function check() {
+                let tmp = $("tr").eq(starY).children().eq(starX).attr("data-snake");
+                if (tmp >0||(starY==posY&&starX==posX)) {
+                    point++;
+                    $("#point").text(point);
+                    if(sec>100){
+                        sec=sec-5;
+                    }else if(sec>75){
+                        sec=sec-1;
+                    }
+                    star();
+                }
+            }
+
+            function up() {
+                upflag=1;
+                downflag=0;
+                leftflag=0;
+                rightflag=0;
+                if (posY != 0) {
+                    posY--;
+                    let tmp=$("tr").eq(posY).children().eq(posX).attr("data-snake");
+                    if((tmp-1)>0){
+                        gameover();
+                    }
+                } else {
+                    gameover();
+                }
+                check();
+                show();
+                clearTimeout(timeout);
+                if(next){
+                    timeout=setTimeout(up, sec);
+                }
+            }
+
+            function down() {
+                upflag=0;
+                downflag=1;
+                leftflag=0;
+                rightflag=0;
+                if (posY != (y - 1)) {
+                    posY++;
+                    let tmp=$("tr").eq(posY).children().eq(posX).attr("data-snake");
+                    if((tmp-1)>0){
+                        gameover();
+                    }
+                } else {
+                    gameover();
+                }
+                check();
+                show();
+                clearTimeout(timeout);
+                if(next){
+                    timeout=setTimeout(down, sec);
+                }
+            }
+            function left() {
+                upflag=0;
+                downflag=0;
+                leftflag=1;
+                rightflag=0;
+                if (posX != 0) {
+                    posX--;
+                    let tmp=$("tr").eq(posY).children().eq(posX).attr("data-snake");
+                    if((tmp-1)>0){
+                        gameover();
+                    }
+                } else {
+                    gameover();
+                }
+                check();
+                show();
+                clearTimeout(timeout);
+                if(next){
+                    timeout=setTimeout(left, sec);
+                }
+            }
+            function right() {
+                upflag=0;
+                downflag=0;
+                leftflag=0;
+                rightflag=1;
+                if (posX != (x - 1)) {
+                    posX++;
+                    let tmp=$("tr").eq(posY).children().eq(posX).attr("data-snake");
+                    if((tmp-1)>0){
+                        gameover();
+                    }
+                } else {
+                    gameover();
+
+                }
+                check();
+                show();
+                clearTimeout(timeout);
+                if(next){
+                    timeout=setTimeout(right, sec);
+                }
+            }
+
+            function gameover(){
+                alert(point);
+                begin();
+            }
+            function timer(){
+                time++;
+                $("#time").text(time);
+            }
+        });
+    </script>
+</body>
+
+</html>
