@@ -15,13 +15,15 @@
         integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <style>
-        body{
+        body {
             background-color: antiquewhite;
         }
-        table{
+
+        table {
             border: 1px solid black;
             background-color: skyblue;
         }
+
         td {
             background-color: skyblue;
             width: 2vw;
@@ -36,20 +38,76 @@
             background-color: yellow;
             border-radius: 2vw;
         }
+
         .back {
-            width: 5vw;
-            height: 4vw;
-            border-radius: 3vw;
+            width: 100px;
+            height: 50px;
+            border-radius: 2em;
             position: fixed;
             left: 2vw;
             bottom: 2vw;
+            z-index: 3;
         }
 
+        .name {
+            position: fixed;
+            width: 100vw;
+            height: 100vh;
+            top: 0;
+            left: 0;
+            background-color: antiquewhite;
+            z-index: 2;
+        }
+
+        .height {
+            min-height: 11vw;
+        }
+        .rank,
+        .show {
+            position: fixed;
+            background-color: antiquewhite;
+            width: 100vw;
+            height: 100vh;
+            top: 0;
+            left: 0;
+            z-index: 2;
+        }
+
+        .none{
+            display: none;
+        }
+        .flex {
+            display: flex;
+            justify-content: center;
+            text-align: center;
+        }
+        .name {
+            position: fixed;
+            width: 100vw;
+            height: 100vh;
+            top: 0;
+            left: 0;
+            background-color: antiquewhite;
+            z-index: 2;
+        }
+        .user {
+            position: fixed;
+            left: 25vw;
+        }
+       
     </style>
 </head>
 
 <body>
     <button type="button" onclick="location.href='../'" class="btn btn-secondary back">回作品集</button>
+    <div class="name text-center">
+        <div class="height mb-5"></div>
+        <label class="mb-3" for="name">你的名稱</label><br>
+        <input class="mb-3" type="text" name="name" id="name" onkeyup="value=replaceStr(value)"><br>
+        <button type="button" class="btn btn-primary" id="begin">開始遊戲</button><br>
+        <button type="button" class="btn btn-secondary mt-3 showBtn">查看排名</button>
+    </div>
+
     <div class="container-fluid">
         <div class="row">
             <div class="col">
@@ -57,7 +115,8 @@
                 </table>
             </div>
         </div>
-        <div class="row mt-2">
+        
+        <!-- <div class="row mt-2">
             <div class="col text-center">
                 <div>
                     <span>時間:</span>
@@ -70,13 +129,85 @@
                     <span>分</span>
                 </div>
                 <div class="mt-1">
-                    <button class="btn btn-secondary" id="reset">重新開始</button>
+                    <button class="btn btn-secondary again">重新開始</button>
+                </div>
+            </div>
+        </div> -->
+    </div>
+    <div class="flex mt-3">
+        <div class="user none">
+            <span>玩家</span>
+            <input type="text" class="username" onkeyup="value=replaceStr(value)">
+            <div>
+                <button type="button" class="btn btn-secondary mt-1 showBtn">查看排名</button>
+            </div>
+        </div>
+        <div>
+            <div>
+                <span>時間:</span>
+                <span id="time">0</span>
+                <span>秒</span>
+            </div>
+            <div>
+                <span>分數:</span>
+                <span id="point">0</span>
+                <span>分</span>
+            </div>
+            <div class="mt-1">
+                <button type="button" class="btn btn-secondary again">Again</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="show none">
+        <div class="container text-center">
+            <div class="row mt-5">
+                <div class="col">
+                    <h1>排行</h1>
+                </div>
+            </div>
+            <div class="row" id="showRank">
+                <div class="col-4">排名</div>
+                <div class="col-4">姓名</div>
+                <div class="col-4">秒數</div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="mt-1">
+                        <button type="button" class="btn btn-secondary close">返回</button>
+                    </div>
                 </div>
             </div>
         </div>
+    </div>
 
+    <div class="rank none">
+        <div class="container text-center">
+            <div class="row mt-5">
+                <div class="col">
+                    <h1>排行</h1>
+                </div>
+            </div>
+            <div class="row" id="rank">
+                <div class="col-4">排名</div>
+                <div class="col-4">姓名</div>
+                <div class="col-4">秒數</div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="mt-1">
+                        <button type="button" class="btn btn-secondary again">Again</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <script>
+        function replaceStr(value) {
+            const pattern = /[`~!@#$^&*()=|{}':;',\\\[\]\.<>\/?~！@#￥……&*（）——|{}【】'；：""'。，、？\s]/g;
+            return value.replace(pattern, "");
+        }
+
         $(document).ready(function () {
             let x = 35;//寬
             let y = 20;//高
@@ -85,25 +216,131 @@
             let starX;
             let starY;
             let point = 0;
-            let upflag=0;
-            let downflag=0;
-            let leftflag=0;
-            let rightflag=0;
+            let upflag = 0;
+            let downflag = 0;
+            let leftflag = 0;
+            let rightflag = 0;
             let sec;
-            let time=0;
+            let time = 0;
             let timeout;
             let timeflag;
-            let beginflag=0;
+            let beginflag = 0;
             let next;
+            let name;
             init();
             begin();
+
+            $("#begin").click(function () {
+                let tmp = replaceStr($("#name").val());
+                if (tmp != "") {
+                    name = tmp;
+                    $(".name").css("display", "none");
+                    $(".user").attr("class", "user");
+                    $(".username").val(name);
+                } else {
+                    alert("請輸入名稱");
+                    $("#name").val("")
+                }
+            })
+
+            $(".showBtn").click(function () {
+                showRank();
+            })
+
+            $(".close").click(function () {
+                $(".show").attr("class", "show none");
+            })
+            $(".username").change(function () {
+                let tmp = replaceStr($(".username").val());
+                if (tmp != "") {
+                    name = tmp;
+                    $(".username").val(tmp);
+                } else {
+                    $(".username").val(name);
+                }
+            })
+
+            function rank() {
+                let rank=1;
+                let lastRank=1;
+                let lastPoint=0;
+                let tmp=0;
+                $.ajax({
+                    type: "post",
+                    url: "./ajax/rank.php",
+                    data: { point: point, name: name },
+                    dataType: "json",
+                    success: function (response) {
+                        $(".rank").attr("class", "rank");
+                        let html = `
+            <div class="col-4">排名</div>
+             <div class="col-4">姓名</div>
+            <div class="col-4">分數</div>
+        `;
+                        $("#rank").html(html);
+                        for (let i = 0; i < response.length; i++) {
+                            if(response[i].point==lastPoint){
+                                tmp = "<div class='col-4 p-2'>" + lastRank + "</div>";
+                            }else{
+                                tmp = "<div class='col-4 p-2'>" + rank + "</div>";
+                                lastPoint=response[i].point;
+                                lastRank=rank;
+                                rank++;
+                            }
+                            
+                            $("#rank").append(tmp);
+                            tmp = "<div class='col-4 p-2'>" + response[i].name + "</div>";
+                            $("#rank").append(tmp);
+                            tmp = "<div class='col-4 p-2'>" + response[i].point + "</div>";
+                            $("#rank").append(tmp);
+                        }   
+                    }
+                });
+            }
+
+            function showRank() {
+                let rank=1;
+                let lastRank=1;
+                let lastPoint=0;
+                let tmp=0;
+                $.ajax({
+                    type: "post",
+                    url: "./ajax/rank.php",
+                    dataType: "json",
+                    success: function (response) {
+                        $(".show").attr("class", "show");
+                        let html = `
+                            <div class="col-4">排名</div>
+                            <div class="col-4">姓名</div>
+                            <div class="col-4">分數</div>
+                        `;
+                        $("#showRank").html(html);
+                        for (let i = 0; i < response.length; i++) {
+                            if(response[i].point==lastPoint){
+                                tmp = "<div class='col-4 p-2'>" + lastRank + "</div>";
+                            }else{
+                                tmp = "<div class='col-4 p-2'>" + rank + "</div>";
+                                lastPoint=response[i].point;
+                                lastRank=rank;
+                                rank++;
+                            }
+                            $("#showRank").append(tmp);
+                            tmp = "<div class='col-4 p-2'>" + response[i].name + "</div>";
+                            $("#showRank").append(tmp);
+                            tmp = "<div class='col-4 p-2'>" + response[i].point + "</div>";
+                            $("#showRank").append(tmp);
+                        }
+
+                    }
+                });
+            }
 
             $(document).keydown(function (e) {
                 switch (e.key) {
                     case "ArrowUp":
                     case "w":
                         start();
-                        if(upflag==0&&downflag!=1){
+                        if (upflag == 0 && downflag != 1) {
                             clearTimeout(timeout);
                             up();
                         }
@@ -111,7 +348,7 @@
                     case "ArrowDown":
                     case "s":
                         start();
-                        if(downflag==0&&upflag!=1){
+                        if (downflag == 0 && upflag != 1) {
                             clearTimeout(timeout);
                             down();
                         }
@@ -119,7 +356,7 @@
                     case "ArrowLeft":
                     case "a":
                         start();
-                        if(leftflag==0&&rightflag!=1){
+                        if (leftflag == 0 && rightflag != 1) {
                             clearTimeout(timeout);
                             left();
                         }
@@ -127,7 +364,7 @@
                     case "ArrowRight":
                     case "d":
                         start();
-                        if(rightflag==0&&leftflag!=1){
+                        if (rightflag == 0 && leftflag != 1) {
                             clearTimeout(timeout);
                             right();
                         }
@@ -135,19 +372,19 @@
                 }
             });
 
-            $("#reset").click(
-                function(){
+            $(".again").click(
+                function () {
                     begin();
                 }
             )
 
 
 
-            function start(){
-                if(beginflag==0){
-                    timeflag=setInterval(timer,1000);
-                    next=1;
-                    beginflag=1;
+            function start() {
+                if (beginflag == 0) {
+                    timeflag = setInterval(timer, 1000);
+                    next = 1;
+                    beginflag = 1;
                 }
             }
 
@@ -164,51 +401,56 @@
             }
 
             function begin() {
+                $(".rank").attr("class", "rank none");
+                $(".show").attr("class", "show none");
+
                 clearInterval(timeflag);
                 clearTimeout(timeout);
-                point=0;
-                next=0;
-                upflag=0;
-                downflag=0;
-                leftflag=0;
-                rightflag=0;
-                beginflag=0;
-                time=0;
-                sec=300;
+                point = 0;
+                next = 0;
+                upflag = 0;
+                downflag = 0;
+                leftflag = 0;
+                rightflag = 0;
+                beginflag = 0;
+                time = 0;
+                sec = 300;
                 $("#time").text(0);
                 $("#point").text(0);
                 star();
-
-                $("td").attr("data-snake",0);
+                
+                $("td").attr("data-snake", 0);
                 $("td").removeClass("snake");
                 posX = Math.floor(Math.random() * x);
                 posY = Math.floor(Math.random() * y);
-                $("tr").eq(posY).children().eq(posX).attr("data-snake",1);
+                $("tr").eq(posY).children().eq(posX).attr("data-snake", 1);
                 $("tr").eq(posY).children().eq(posX).addClass("snake");
             }
             function star() {
                 starX = Math.floor(Math.random() * x);
                 starY = Math.floor(Math.random() * y);
-                $("td").each(function(){{
-                        tmp=$(this).attr("data-snake");
-                        if(tmp>0){
-                            $(this).attr("data-snake",Number(tmp)+1);
+                $("td").each(function () {
+                    {
+                        tmp = $(this).attr("data-snake");
+                        if (tmp > 0) {
+                            $(this).attr("data-snake", Number(tmp) + 1);
                         }
-                }})
+                    }
+                })
                 check();
                 starShow();
             }
 
             function show() {
-                $("tr").eq(posY).children().eq(posX).attr("data-snake",point+2);
+                $("tr").eq(posY).children().eq(posX).attr("data-snake", point + 2);
                 $("td").each(function () {
-                    let tmp=$(this).attr("data-snake");
-                    $(this).attr("data-snake",tmp-1);
-                    if((tmp-1)>0){
+                    let tmp = $(this).attr("data-snake");
+                    $(this).attr("data-snake", tmp - 1);
+                    if ((tmp - 1) > 0) {
                         $(this).addClass("snake");
-                    }else{
+                    } else {
                         $(this).removeClass("snake");
-                        $(this).attr("data-snake",0);
+                        $(this).attr("data-snake", 0);
                     }
                 })
             }
@@ -220,27 +462,27 @@
 
             function check() {
                 let tmp = $("tr").eq(starY).children().eq(starX).attr("data-snake");
-                if (tmp >0||(starY==posY&&starX==posX)) {
+                if (tmp > 0 || (starY == posY && starX == posX)) {
                     point++;
                     $("#point").text(point);
-                    if(sec>100){
-                        sec=sec-5;
-                    }else if(sec>75){
-                        sec=sec-1;
+                    if (sec > 100) {
+                        sec = sec - 5;
+                    } else if (sec > 75) {
+                        sec = sec - 1;
                     }
                     star();
                 }
             }
 
             function up() {
-                upflag=1;
-                downflag=0;
-                leftflag=0;
-                rightflag=0;
+                upflag = 1;
+                downflag = 0;
+                leftflag = 0;
+                rightflag = 0;
                 if (posY != 0) {
                     posY--;
-                    let tmp=$("tr").eq(posY).children().eq(posX).attr("data-snake");
-                    if((tmp-1)>0){
+                    let tmp = $("tr").eq(posY).children().eq(posX).attr("data-snake");
+                    if ((tmp - 1) > 0) {
                         gameover();
                     }
                 } else {
@@ -249,20 +491,20 @@
                 check();
                 show();
                 clearTimeout(timeout);
-                if(next){
-                    timeout=setTimeout(up, sec);
+                if (next) {
+                    timeout = setTimeout(up, sec);
                 }
             }
 
             function down() {
-                upflag=0;
-                downflag=1;
-                leftflag=0;
-                rightflag=0;
+                upflag = 0;
+                downflag = 1;
+                leftflag = 0;
+                rightflag = 0;
                 if (posY != (y - 1)) {
                     posY++;
-                    let tmp=$("tr").eq(posY).children().eq(posX).attr("data-snake");
-                    if((tmp-1)>0){
+                    let tmp = $("tr").eq(posY).children().eq(posX).attr("data-snake");
+                    if ((tmp - 1) > 0) {
                         gameover();
                     }
                 } else {
@@ -271,19 +513,19 @@
                 check();
                 show();
                 clearTimeout(timeout);
-                if(next){
-                    timeout=setTimeout(down, sec);
+                if (next) {
+                    timeout = setTimeout(down, sec);
                 }
             }
             function left() {
-                upflag=0;
-                downflag=0;
-                leftflag=1;
-                rightflag=0;
+                upflag = 0;
+                downflag = 0;
+                leftflag = 1;
+                rightflag = 0;
                 if (posX != 0) {
                     posX--;
-                    let tmp=$("tr").eq(posY).children().eq(posX).attr("data-snake");
-                    if((tmp-1)>0){
+                    let tmp = $("tr").eq(posY).children().eq(posX).attr("data-snake");
+                    if ((tmp - 1) > 0) {
                         gameover();
                     }
                 } else {
@@ -292,19 +534,19 @@
                 check();
                 show();
                 clearTimeout(timeout);
-                if(next){
-                    timeout=setTimeout(left, sec);
+                if (next) {
+                    timeout = setTimeout(left, sec);
                 }
             }
             function right() {
-                upflag=0;
-                downflag=0;
-                leftflag=0;
-                rightflag=1;
+                upflag = 0;
+                downflag = 0;
+                leftflag = 0;
+                rightflag = 1;
                 if (posX != (x - 1)) {
                     posX++;
-                    let tmp=$("tr").eq(posY).children().eq(posX).attr("data-snake");
-                    if((tmp-1)>0){
+                    let tmp = $("tr").eq(posY).children().eq(posX).attr("data-snake");
+                    if ((tmp - 1) > 0) {
                         gameover();
                     }
                 } else {
@@ -314,16 +556,22 @@
                 check();
                 show();
                 clearTimeout(timeout);
-                if(next){
-                    timeout=setTimeout(right, sec);
+                if (next) {
+                    timeout = setTimeout(right, sec);
                 }
             }
 
-            function gameover(){
-                alert(point);
-                begin();
+            function gameover() {
+                next=0;
+                alert("你的分數 : "+point+"分");
+                upflag = 1;
+                downflag = 1;
+                leftflag = 1;
+                rightflag = 1;
+                
+                rank();
             }
-            function timer(){
+            function timer() {
                 time++;
                 $("#time").text(time);
             }
